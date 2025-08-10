@@ -123,20 +123,29 @@ class DataProcessor:
     
     def inverse_transform_predictions(self, predictions):
         """Inverse transform predictions back to original scale"""
-        predictions_flat = predictions.flatten()
-        num_features = self.scaled_df_hourly.shape[1]
-        dummy_array = np.zeros((len(predictions_flat), num_features))
-        dummy_array[:, 0] = predictions_flat
-        inverted_data = self.scaler.inverse_transform(dummy_array)[:, 0]
-        return inverted_data.reshape(predictions.shape)
+        try:
+            predictions_flat = predictions.flatten()
+            num_features = self.scaled_df_hourly.shape[1]
+            dummy_array = np.zeros((len(predictions_flat), num_features))
+            dummy_array[:, 0] = predictions_flat
+            inverted_data = self.scaler.inverse_transform(dummy_array)[:, 0]
+            return inverted_data.reshape(predictions.shape)
+        except Exception as e:
+            print(f"Warning: Error in inverse transform: {str(e)}")
+            # Return original predictions if inverse transform fails
+            return predictions
     
     def process_all_data(self):
         """Complete data processing pipeline"""
-        df = self.load_data()
-        self.resample_and_feature_engineer(df)
-        self.scale_features()
-        
-        forecasting_data = self.prepare_forecasting_data()
-        anomaly_data = self.prepare_anomaly_detection_data()
-        
-        return forecasting_data, anomaly_data 
+        try:
+            df = self.load_data()
+            self.resample_and_feature_engineer(df)
+            self.scale_features()
+            
+            forecasting_data = self.prepare_forecasting_data()
+            anomaly_data = self.prepare_anomaly_detection_data()
+            
+            return forecasting_data, anomaly_data
+        except Exception as e:
+            print(f"Error in data processing pipeline: {str(e)}")
+            raise 

@@ -107,27 +107,31 @@ class ModelTrainer:
         
     def train_model(self, model, X_train, y_train, model_name):
         """Train a model with early stopping"""
-        print(f"\nTraining {model_name}...")
-        
-        early_stopping = tf.keras.callbacks.EarlyStopping(
-            monitor='val_loss', 
-            patience=EARLY_STOPPING_PATIENCE, 
-            restore_best_weights=True
-        )
-        
-        history = model.fit(
-            X_train, y_train,
-            epochs=EPOCHS,
-            batch_size=BATCH_SIZE,
-            validation_split=VALIDATION_SPLIT,
-            callbacks=[early_stopping],
-            verbose=1
-        )
-        
-        self.models[model_name] = model
-        self.histories[model_name] = history
-        
-        return model, history
+        try:
+            print(f"\nTraining {model_name}...")
+            
+            early_stopping = tf.keras.callbacks.EarlyStopping(
+                monitor='val_loss', 
+                patience=EARLY_STOPPING_PATIENCE, 
+                restore_best_weights=True
+            )
+            
+            history = model.fit(
+                X_train, y_train,
+                epochs=EPOCHS,
+                batch_size=BATCH_SIZE,
+                validation_split=VALIDATION_SPLIT,
+                callbacks=[early_stopping],
+                verbose=1
+            )
+            
+            self.models[model_name] = model
+            self.histories[model_name] = history
+            
+            return model, history
+        except Exception as e:
+            print(f"Error training {model_name}: {str(e)}")
+            raise
     
     def get_model(self, model_name):
         """Get a trained model by name"""
